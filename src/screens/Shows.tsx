@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import Search from '../components/Search';
-import { Colors } from '../utils/colors';
+import { defaultColors } from '../utils/colors';
 import GlobalContext from './../context/GlobalContext';
 import { BASE_URL } from './../utils/constants';
 import { debounce } from './../utils/heloper';
@@ -33,16 +33,13 @@ const Shows: React.FC<ShowsProps> = () => {
       .then(response => setShows(response));
   }
 
-  // Memonizing the function call
-  const dynamicStyles = useMemo(() => styles(colors), [colors]);
-
   // Single item in list
   function _renderItem({ item }: { item: any }) {
     return (
       <TouchableNativeFeedback>
-        <View style={dynamicStyles.item}>
+        <View style={styles.item}>
           <Image
-            style={dynamicStyles.itemImage}
+            style={styles.itemImage}
             source={{ uri: item?.show?.image?.medium }}
             resizeMethod="scale"
             resizeMode="cover"
@@ -70,8 +67,8 @@ const Shows: React.FC<ShowsProps> = () => {
   }
 
   return (
-    <View style={dynamicStyles.container}>
-      <View style={dynamicStyles.inputContainer}>
+    <View style={styles.container}>
+      <View style={styles.inputContainer}>
         <Search
           onClear={onClear}
           query={query}
@@ -80,8 +77,8 @@ const Shows: React.FC<ShowsProps> = () => {
         />
       </View>
       <FlatList
-        style={dynamicStyles.flatlist}
-        contentContainerStyle={dynamicStyles.flatlistContainerStyle}
+        style={styles.flatlist}
+        contentContainerStyle={styles.flatlistContainerStyle}
         data={shows}
         keyExtractor={(_, index) => index.toString()}
         renderItem={_renderItem}
@@ -91,21 +88,20 @@ const Shows: React.FC<ShowsProps> = () => {
   );
 };
 
-const styles = (colors: Colors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
-    flatlist: { width: '100%' },
-    flatlistContainerStyle: { padding: 15 },
-    item: {
-      height: 200,
-      width: '32%',
-      marginBottom: 15,
-      marginRight: 8,
-      elevation: 4,
-      backgroundColor: 'white',
-    },
-    itemImage: { height: '100%', width: '100%', borderRadius: 4 },
-    inputContainer: { padding: 15 },
-  });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: defaultColors.white },
+  flatlist: { width: '100%' },
+  flatlistContainerStyle: { padding: 15 },
+  item: {
+    height: 200,
+    width: '32%',
+    marginBottom: 15,
+    marginRight: 8,
+    elevation: 4,
+    backgroundColor: 'white',
+  },
+  itemImage: { height: '100%', width: '100%', borderRadius: 4 },
+  inputContainer: { padding: 15 },
+});
 
 export default Shows;

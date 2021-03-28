@@ -1,35 +1,79 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RatingBar from '../components/RatingBar';
 import { defaultColors } from '../utils/colors';
+import { BASE_URL } from './../utils/constants';
 
 interface ShowDetailProps {}
 
 const ShowDetail: React.FC<ShowDetailProps> = () => {
+  const [details, setDetails] = useState<any | null>(null);
+  const [casts, setCasts] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetching show details
+    fetch(`${BASE_URL}/shows/1`)
+      .then(res => res.json())
+      .then(response => {
+        setDetails(response);
+      });
+
+    // Fetching cast
+    fetch(`${BASE_URL}/shows/1/cast`)
+      .then(res => res.json())
+      .then(response => {
+        setCasts(response);
+      });
+  }, []);
+
+  function _renderItem({ item }: { item: any }) {
+    return (
+      <View style={styles.castItem}>
+        <Image
+          source={{ uri: item?.person?.image?.medium }}
+          resizeMethod="scale"
+          resizeMode="cover"
+          style={styles.image}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={require('../assets/img.jpg')} />
+        <Image
+          resizeMethod="scale"
+          resizeMode="cover"
+          style={styles.image}
+          source={{ uri: details?.image?.medium }}
+        />
       </View>
       <View style={styles.content}>
         <View style={styles.iconPrimary}>
           <Icon name="play" size={40} color={defaultColors.white} />
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Stranger Things</Text>
-          <RatingBar rating={4} stars={5} />
+          <Text style={styles.title}>{details?.name}</Text>
+          <RatingBar
+            rating={parseInt(details?.rating?.average, 10)}
+            stars={5}
+          />
         </View>
         <Text style={styles.desc}>
-          A love letter to the '80s classics that captivated a generation,{' '}
-          Stranger Things is set in 1983 Indiana, where a young boy vanishes
-          into thin air. As friends, family and local police search for answers,
-          they are drawn into an extraordinary mystery involving top-secret
-          government experiments, terrifying supernatural forces and one very
-          strange little girl.
+          {/* The replace method replaces all html tags in summary with empty string */}
+          {details?.summary?.replace(/(<([^>]+)>)/gi, '')}
         </Text>
-        <Text style={[styles.title, styles.titlePrimary]}>Cast</Text>
+        <Text style={[styles.title, styles.titleWithSpacing]}>Cast</Text>
+        <FlatList
+          horizontal
+          data={casts}
+          renderItem={_renderItem}
+          keyExtractor={(_, index) => index.toString()}
+        />
       </View>
     </View>
   );
@@ -73,7 +117,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   desc: { fontSize: 16, color: '#555', textAlign: 'left' },
-  titlePrimary: { marginTop: 20 },
+  titleWithSpacing: { marginTop: 20, marginBottom: 10 },
+  castItem: {
+    height: 200,
+    width: 150,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginRight: 15,
+  },
 });
 
 export default ShowDetail;
