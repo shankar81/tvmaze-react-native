@@ -1,3 +1,4 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
@@ -7,7 +8,6 @@ import { defaultColors } from '../utils/colors';
 import GlobalContext from './../context/GlobalContext';
 import { BASE_URL } from './../utils/constants';
 import { debounce, parseDate } from './../utils/heloper';
-import { StackNavigationProp } from '@react-navigation/stack';
 
 type ShowsNavigationProps = StackNavigationProp<AppStackParamList, 'Shows'>;
 
@@ -87,7 +87,7 @@ const Shows: React.FC<ShowsProps> = ({ navigation }) => {
         />
       </View>
       <FlatList
-        keyboardShouldPersistTaps
+        keyboardShouldPersistTaps="always"
         style={styles.flatlist}
         contentContainerStyle={styles.flatlistContainerStyle}
         data={shows}

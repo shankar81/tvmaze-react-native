@@ -27,7 +27,12 @@ const App: React.FC<AppProps> = () => {
   return (
     <GlobalContext.Provider
       value={{ colors: defaultColors, isDarkMode, changeTheme: onChangeTheme }}>
-      <StatusBar animated translucent backgroundColor="transparent" />
+      <StatusBar
+        barStyle="dark-content"
+        animated
+        translucent
+        backgroundColor="transparent"
+      />
 
       {/* Navigation Routes */}
       <NavigationContainer>
