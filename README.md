@@ -6,4 +6,4 @@ Listing the shows by using TV Maze API
 
 ## :camera_flash: Screenshots
 
-<img src="/raw/list.png" width="260">&emsp;<img src="/results/detail.png" width="260">&emsp;<img src="/results/search.png" width="260">
+<img src="/raw/list.png" width="260">&emsp;<img src="/raw/detail.png" width="260">&emsp;<img src="/raw/search.png" width="260">
