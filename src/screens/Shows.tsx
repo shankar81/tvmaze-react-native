@@ -1,15 +1,21 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+import { AppStackParamList } from '../../App';
 import Search from '../components/Search';
 import { defaultColors } from '../utils/colors';
 import GlobalContext from './../context/GlobalContext';
 import { BASE_URL } from './../utils/constants';
-import { debounce } from './../utils/heloper';
+import { debounce, parseDate } from './../utils/heloper';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-interface ShowsProps {}
+type ShowsNavigationProps = StackNavigationProp<AppStackParamList, 'Shows'>;
 
-const Shows: React.FC<ShowsProps> = () => {
+type ShowsProps = {
+  navigation: ShowsNavigationProps;
+};
+
+const Shows: React.FC<ShowsProps> = ({ navigation }) => {
   const { colors } = useContext(GlobalContext);
 
   const [query, setQuery] = useState<string>('');
@@ -21,7 +27,7 @@ const Shows: React.FC<ShowsProps> = () => {
 
   function loadScheduledShows() {
     // Fetching data from API
-    fetch(`${BASE_URL}/schedule?country=US&date=2021-03-20`)
+    fetch(`${BASE_URL}/schedule?country=US&date=${parseDate(new Date())}`)
       .then(res => res.json())
       .then(response => setShows(response));
   }
@@ -33,10 +39,14 @@ const Shows: React.FC<ShowsProps> = () => {
       .then(response => setShows(response));
   }
 
+  function navigateToDetail(id: number) {
+    navigation.navigate('ShowDetails', { id });
+  }
+
   // Single item in list
   function _renderItem({ item }: { item: any }) {
     return (
-      <TouchableNativeFeedback>
+      <TouchableNativeFeedback onPress={() => navigateToDetail(item?.show?.id)}>
         <View style={styles.item}>
           <Image
             style={styles.itemImage}
@@ -77,6 +87,7 @@ const Shows: React.FC<ShowsProps> = () => {
         />
       </View>
       <FlatList
+        keyboardShouldPersistTaps
         style={styles.flatlist}
         contentContainerStyle={styles.flatlistContainerStyle}
         data={shows}
@@ -89,7 +100,7 @@ const Shows: React.FC<ShowsProps> = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: defaultColors.white },
+  container: { flex: 1, backgroundColor: defaultColors.white, paddingTop: 30 },
   flatlist: { width: '100%' },
   flatlistContainerStyle: { padding: 15 },
   item: {

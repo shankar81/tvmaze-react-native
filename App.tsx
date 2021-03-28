@@ -1,8 +1,19 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import GlobalContext from './src/context/GlobalContext';
 import ShowDetail from './src/screens/ShowDetail';
+import Shows from './src/screens/Shows';
 import { defaultColors } from './src/utils/colors';
+
+// Type checking for navigation
+export type AppStackParamList = {
+  Shows: undefined;
+  ShowDetails: { id: number };
+};
+
+const AppStack = createStackNavigator<AppStackParamList>();
 
 interface AppProps {}
 
@@ -16,8 +27,15 @@ const App: React.FC<AppProps> = () => {
   return (
     <GlobalContext.Provider
       value={{ colors: defaultColors, isDarkMode, changeTheme: onChangeTheme }}>
-      <StatusBar backgroundColor={defaultColors.primary} />
-      <ShowDetail />
+      <StatusBar animated translucent backgroundColor="transparent" />
+
+      {/* Navigation Routes */}
+      <NavigationContainer>
+        <AppStack.Navigator headerMode="none">
+          <AppStack.Screen name="Shows" component={Shows} />
+          <AppStack.Screen name="ShowDetails" component={ShowDetail} />
+        </AppStack.Navigator>
+      </NavigationContainer>
     </GlobalContext.Provider>
   );
 };

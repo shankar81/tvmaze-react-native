@@ -1,32 +1,45 @@
+import { RouteProp } from '@react-navigation/core';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
-import { Image, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AppStackParamList } from '../../App';
 import RatingBar from '../components/RatingBar';
 import { defaultColors } from '../utils/colors';
 import { BASE_URL } from './../utils/constants';
 
-interface ShowDetailProps {}
+type ShowDetailRouteProp = RouteProp<AppStackParamList, 'ShowDetails'>;
 
-const ShowDetail: React.FC<ShowDetailProps> = () => {
+type ShowDetailNavigationProps = StackNavigationProp<
+  AppStackParamList,
+  'ShowDetails'
+>;
+
+type ShowDetailProps = {
+  route: ShowDetailRouteProp;
+  navigation: ShowDetailNavigationProps;
+};
+
+const ShowDetail: React.FC<ShowDetailProps> = ({ route, navigation }) => {
   const [details, setDetails] = useState<any | null>(null);
   const [casts, setCasts] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetching show details
-    fetch(`${BASE_URL}/shows/1`)
+    fetch(`${BASE_URL}/shows/${route.params.id}`)
       .then(res => res.json())
       .then(response => {
         setDetails(response);
       });
 
     // Fetching cast
-    fetch(`${BASE_URL}/shows/1/cast`)
+    fetch(`${BASE_URL}/shows/${route.params.id}/cast`)
       .then(res => res.json())
       .then(response => {
         setCasts(response);
       });
-  }, []);
+  }, [route.params.id]);
 
   function _renderItem({ item }: { item: any }) {
     return (
@@ -41,9 +54,12 @@ const ShowDetail: React.FC<ShowDetailProps> = () => {
     );
   }
 
+  function goBack() {
+    navigation.goBack();
+  }
+
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
       <View style={styles.imageContainer}>
         <Image
           resizeMethod="scale"
@@ -51,6 +67,11 @@ const ShowDetail: React.FC<ShowDetailProps> = () => {
           style={styles.image}
           source={{ uri: details?.image?.medium }}
         />
+        <View style={styles.backButtonContainer}>
+          <TouchableOpacity onPress={goBack} style={styles.backButton}>
+            <Icon name="chevron-left" size={30} color={defaultColors.white} />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.content}>
         <View style={styles.iconPrimary}>
@@ -63,17 +84,22 @@ const ShowDetail: React.FC<ShowDetailProps> = () => {
             stars={5}
           />
         </View>
-        <Text style={styles.desc}>
+        <Text numberOfLines={casts.length > 0 ? 5 : 20} style={styles.desc}>
           {/* The replace method replaces all html tags in summary with empty string */}
           {details?.summary?.replace(/(<([^>]+)>)/gi, '')}
         </Text>
-        <Text style={[styles.title, styles.titleWithSpacing]}>Cast</Text>
-        <FlatList
-          horizontal
-          data={casts}
-          renderItem={_renderItem}
-          keyExtractor={(_, index) => index.toString()}
-        />
+        {casts.length > 0 && (
+          <>
+            <Text style={[styles.title, styles.titleWithSpacing]}>Cast</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={casts}
+              renderItem={_renderItem}
+              keyExtractor={(_, index) => index.toString()}
+            />
+          </>
+        )}
       </View>
     </View>
   );
@@ -82,10 +108,21 @@ const ShowDetail: React.FC<ShowDetailProps> = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
   imageContainer: {
+    position: 'relative',
     height: '45%',
     width: '100%',
   },
   image: { height: '100%', width: '100%' },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 15,
+  },
+  backButton: {
+    backgroundColor: 'rgba(0, 0,0, 0.2)',
+    borderRadius: 100,
+    padding: 8,
+  },
   content: {
     backgroundColor: 'white',
     elevation: 8,
