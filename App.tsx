@@ -5,7 +5,7 @@ import { StatusBar } from 'react-native';
 import GlobalContext from './src/context/GlobalContext';
 import ShowDetail from './src/screens/ShowDetail';
 import Shows from './src/screens/Shows';
-import { defaultColors } from './src/utils/colors';
+import { darkColors, defaultColors } from './src/utils/colors';
 
 // Type checking for navigation
 export type AppStackParamList = {
@@ -26,14 +26,17 @@ const App: React.FC<AppProps> = () => {
 
   return (
     <GlobalContext.Provider
-      value={{ colors: defaultColors, isDarkMode, changeTheme: onChangeTheme }}>
+      value={{
+        colors: isDarkMode ? darkColors : defaultColors,
+        isDarkMode,
+        changeTheme: onChangeTheme,
+      }}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         animated
         translucent
         backgroundColor="transparent"
       />
-
       {/* Navigation Routes */}
       <NavigationContainer>
         <AppStack.Navigator headerMode="none">

@@ -1,10 +1,11 @@
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { BorderlessButton, FlatList } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { AppStackParamList } from '../../App';
 import Search from '../components/Search';
-import { defaultColors } from '../utils/colors';
+import { Colors } from '../utils/colors';
 import GlobalContext from './../context/GlobalContext';
 import { BASE_URL } from './../utils/constants';
 import { debounce, parseDate } from './../utils/heloper';
@@ -16,10 +17,13 @@ type ShowsProps = {
 };
 
 const Shows: React.FC<ShowsProps> = ({ navigation }) => {
-  const { colors } = useContext(GlobalContext);
+  const { colors, isDarkMode, changeTheme } = useContext(GlobalContext);
 
   const [query, setQuery] = useState<string>('');
   const [shows, setShows] = useState<Array<any>>();
+
+  // Memonizing styles so it will only be recalculated if colors changes
+  const dynamicStyles = useMemo(() => styles(colors), [colors]);
 
   useEffect(() => {
     loadScheduledShows();
@@ -43,13 +47,14 @@ const Shows: React.FC<ShowsProps> = ({ navigation }) => {
     navigation.navigate('ShowDetails', { id });
   }
 
+  console.log(colors);
   // Single item in list
   function _renderItem({ item }: { item: any }) {
     return (
       <TouchableNativeFeedback onPress={() => navigateToDetail(item?.show?.id)}>
-        <View style={styles.item}>
+        <View style={dynamicStyles.item}>
           <Image
-            style={styles.itemImage}
+            style={dynamicStyles.itemImage}
             source={{ uri: item?.show?.image?.medium }}
             resizeMethod="scale"
             resizeMode="cover"
@@ -77,8 +82,15 @@ const Shows: React.FC<ShowsProps> = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
+    <View style={dynamicStyles.container}>
+      <BorderlessButton onPress={changeTheme} style={dynamicStyles.theme}>
+        <Icon
+          size={25}
+          color={colors.text}
+          name={isDarkMode ? 'sun' : 'moon'}
+        />
+      </BorderlessButton>
+      <View style={dynamicStyles.inputContainer}>
         <Search
           onClear={onClear}
           query={query}
@@ -88,8 +100,8 @@ const Shows: React.FC<ShowsProps> = ({ navigation }) => {
       </View>
       <FlatList
         keyboardShouldPersistTaps="always"
-        style={styles.flatlist}
-        contentContainerStyle={styles.flatlistContainerStyle}
+        style={dynamicStyles.flatlist}
+        contentContainerStyle={dynamicStyles.flatlistContainerStyle}
         data={shows}
         keyExtractor={(_, index) => index.toString()}
         renderItem={_renderItem}
@@ -99,20 +111,31 @@ const Shows: React.FC<ShowsProps> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: defaultColors.white, paddingTop: 30 },
-  flatlist: { width: '100%' },
-  flatlistContainerStyle: { padding: 15 },
-  item: {
-    height: 200,
-    width: '32%',
-    marginBottom: 15,
-    marginRight: 8,
-    elevation: 4,
-    backgroundColor: 'white',
-  },
-  itemImage: { height: '100%', width: '100%', borderRadius: 4 },
-  inputContainer: { padding: 15 },
-});
+const styles = (colors: Colors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.white,
+      paddingTop: 30,
+    },
+    flatlist: { width: '100%' },
+    flatlistContainerStyle: { padding: 15 },
+    item: {
+      height: 200,
+      width: '32%',
+      marginBottom: 15,
+      marginRight: 8,
+      elevation: 4,
+      backgroundColor: colors.white,
+    },
+    itemImage: { height: '100%', width: '100%', borderRadius: 4 },
+    inputContainer: { padding: 15 },
+    theme: {
+      alignSelf: 'flex-end',
+      marginRight: 5,
+      marginTop: 15,
+      padding: 10,
+    },
+  });
 
 export default Shows;

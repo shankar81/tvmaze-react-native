@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BorderlessButton, TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,47 +17,53 @@ const Search: React.FC<SearchProps> = ({
   onChangeQuery,
   onClear,
 }) => {
+  // Memonizing styles so it will only be recalculated if colors changes
+  const dynamicStyles = useMemo(() => styles(colors), [colors]);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.icon}>
-        <Icon name="magnify" size={25} color={colors.text} />
+    <View style={dynamicStyles.container}>
+      <View style={dynamicStyles.icon}>
+        <Icon name="magnify" size={25} color={colors.black} />
       </View>
       <TextInput
         value={query}
         onChangeText={onChangeQuery}
+        placeholderTextColor={colors.black}
         placeholder="Search shows"
-        style={styles.input}
+        style={dynamicStyles.input}
       />
-      <View style={styles.tailIcon}>
+      <View style={dynamicStyles.tailIcon}>
         <BorderlessButton onPress={onClear}>
-          <Icon name="close" size={25} color={colors.text} />
+          <Icon name="close" size={25} color={colors.black} />
         </BorderlessButton>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    elevation: 4,
-  },
-  input: {
-    width: '100%',
-    borderRadius: 4,
-    paddingStart: 50,
-  },
-  icon: { position: 'absolute', zIndex: 2, left: 10 },
-  tailIcon: {
-    position: 'absolute',
-    zIndex: 2,
-    right: 10,
-  },
-});
+const styles = (colors: Colors) =>
+  StyleSheet.create({
+    container: {
+      position: 'relative',
+      flexDirection: 'row',
+      width: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.white,
+      elevation: 8,
+    },
+    input: {
+      width: '100%',
+      borderRadius: 4,
+      paddingStart: 50,
+      color: colors.black,
+    },
+    icon: { position: 'absolute', zIndex: 2, left: 10 },
+    tailIcon: {
+      position: 'absolute',
+      zIndex: 2,
+      right: 10,
+    },
+  });
 
 export default Search;
